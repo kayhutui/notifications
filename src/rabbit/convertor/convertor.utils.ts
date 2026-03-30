@@ -99,7 +99,6 @@ const formatPublication = (
 export const convertEcosystemEvent = (rawEvent: unknown): Publication[] => {
   const { eventName, data } = ecosystemEventSchema.parse(rawEvent)
   const config = findEventConfig(eventName)
-
   const { staticValues, dynamicValues, destinations, getMeta } = config
   const dataRecord = Object.fromEntries(Object.entries(data))
   const destValues = resolveDestinationValues(staticValues, dynamicValues, dataRecord)
