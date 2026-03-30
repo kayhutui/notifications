@@ -36,7 +36,9 @@ type Publication = {
 
 // ──── Config Lookup ────
 
-const { [EXCHANGES.ECOSYSTEM_TOPICS]: { [ECOSYSTEM_TOPIC_SOURCES.ECOSYSTEM]: eventConfigs } } = CONVERTOR_MAP
+const {
+  [EXCHANGES.ECOSYSTEM_TOPICS]: { [ECOSYSTEM_TOPIC_SOURCES.ECOSYSTEM]: eventConfigs },
+} = CONVERTOR_MAP
 
 const findEventConfig = (eventName: string) => {
   const config = eventConfigs.find(({ eventName: configEventName }) => configEventName === eventName)
@@ -55,8 +57,9 @@ const resolveDestinationValues = (
   dynamicValues: Partial<Record<string, string>>,
   data: Record<string, string>,
 ): DestinationValues => {
-  const staticEntries = Object.entries(staticValues)
-    .filter((entry): entry is [string, string | boolean] => entry[1] !== undefined)
+  const staticEntries = Object.entries(staticValues).filter(
+    (entry): entry is [string, string | boolean] => entry[1] !== undefined,
+  )
 
   const dynamicEntries = Object.entries(dynamicValues)
     .filter((entry): entry is [string, string] => entry[1] !== undefined)
@@ -93,7 +96,6 @@ const formatPublication = (
 }
 
 // ──── Main Conversion ────
-
 export const convertEcosystemEvent = (rawEvent: unknown): Publication[] => {
   const { eventName, data } = ecosystemEventSchema.parse(rawEvent)
   const config = findEventConfig(eventName)
@@ -103,7 +105,5 @@ export const convertEcosystemEvent = (rawEvent: unknown): Publication[] => {
   const destValues = resolveDestinationValues(staticValues, dynamicValues, dataRecord)
   const meta = getMeta(destValues)
 
-  return destinations.map((destination) =>
-    formatPublication(destination, destValues, meta),
-  )
+  return destinations.map((destination) => formatPublication(destination, destValues, meta))
 }
