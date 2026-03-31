@@ -17,11 +17,31 @@ import { z } from 'zod'
 import { ECOSYSTEM_EVENTS } from './ecosystem.consts.ts'
 import type { _Ecosystem } from './ecosystem.types.ts'
 
+/** Base data fields shared across all ecosystem events */
+const BASE_DATA_FIELDS = {
+  OPERATION_ID: 'operation_id',
+  TARGET_ID: 'target_id',
+  ENTITY_ID: 'entity_id',
+} as const
+
+/** Per-event data field maps — each event declares only its own valid fields */
+export const ECOSYSTEM_DATA_FIELDS = {
+  [ECOSYSTEM_EVENTS.INSTANCE_FAILED]: { ...BASE_DATA_FIELDS },
+  [ECOSYSTEM_EVENTS.INSTANCE_SUCCESS]: { ...BASE_DATA_FIELDS },
+  [ECOSYSTEM_EVENTS.INSTANCE_STATE]: {
+    ...BASE_DATA_FIELDS,
+    EVENT_NAME: 'event_name',
+    STATE: 'state',
+  },
+} as const
+
+export type EcosystemEventDataFields = typeof ECOSYSTEM_DATA_FIELDS
+
 // ──── Base Data Schema ────
 export const ecosystemEventDataSchema = z.object({
-  operationId: z.string(),
-  targetId: z.string(),
-  entityId: z.string(),
+  [BASE_DATA_FIELDS.OPERATION_ID]: z.string(),
+  [BASE_DATA_FIELDS.TARGET_ID]: z.string(),
+  [BASE_DATA_FIELDS.ENTITY_ID]: z.string(),
 })
 
 // ──── Base Event Schema Factory ────
@@ -32,9 +52,12 @@ export const getBaseEcosystemEventSchema = <EventName extends string>(name: Even
   })
 
 
+const stateFields = ECOSYSTEM_DATA_FIELDS[ECOSYSTEM_EVENTS.INSTANCE_STATE]
+
 export const uniqEcosystemEventSchema = getBaseEcosystemEventSchema(ECOSYSTEM_EVENTS.INSTANCE_STATE).extend({
   data: ecosystemEventDataSchema.extend({
-    event_name: z.literal(ECOSYSTEM_EVENTS.INSTANCE_DONE),
+    [stateFields.EVENT_NAME]: z.literal(ECOSYSTEM_EVENTS.INSTANCE_DONE),
+    [stateFields.STATE]: z.string(),
   }),
 })
 
