@@ -18,7 +18,7 @@
  * Returns Publication[] — one per destination (currently 2: topic + headers exchange).
  */
 import { ecosystemEventSchema } from '../ecosystem/ecosystem.schemas.ts'
-import { CONVERTOR_MAP } from './convertor.consts.ts'
+import { CONVERTOR_MAP } from './convertor.config.ts'
 import { EXCHANGES } from '../rabbit/rabbit.consts.ts'
 import { ECOSYSTEM_TOPIC_SOURCES } from '../ecosystem/ecosystem.consts.ts'
 import { formatTopic, formatHeaders } from '../rabbit/rabbit.utils.ts'
@@ -99,7 +99,7 @@ const formatPublication = (
 export const convertEcosystemEvent = (rawEvent: unknown): Publication[] => {
   const { eventName, data } = ecosystemEventSchema.parse(rawEvent)
   const config = findEventConfig(eventName)
-  const { staticValues, dynamicValues, destinations, getMeta } = config
+  const { staticValues, dynamicValues, destinations, getMeta, enrich } = config
   const dataRecord = Object.fromEntries(Object.entries(data))
   const destValues = resolveDestinationValues(staticValues, dynamicValues, dataRecord)
   const meta = getMeta(destValues)
