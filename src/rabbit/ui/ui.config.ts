@@ -1,13 +1,15 @@
 /**
  * UI Exchange Routing Configuration
  *
- * Defines how UI notifications are routed across two exchanges:
+ * Defines how UI notifications are routed across three exchanges:
  *
- * 1. Topic exchange (ui.notification.topics):
+ * 1. Topic exchange (ui.feed.topics):
  *    - UI source:       simple routing by user param only (formatter: [user])
+ *
+ * 2. Topic exchange (ui.converted.topics):
  *    - INSTANCE source: full routing with options + filters
  *
- * 2. Headers exchange (ui.notification.headers):
+ * 3. Headers exchange (ui.converted.headers):
  *    - INSTANCE source: same options/filters as topic, but matched via header key-values
  *
  * The INSTANCE configs include:
@@ -29,15 +31,17 @@ import type { _Rabbit } from '../rabbit/rabbit.types.ts'
 
 // ──── Exchange Topic Map ────
 export const UI_EXCHANGE_TOPIC_MAP = {
-  [EXCHANGES.UI_NOTIFICATION_TOPICS]: {
+  [EXCHANGES.UI_FEED_TOPICS]: {
     [UI_TOPIC_SOURCES.UI]: {
-      exchange: EXCHANGES.UI_NOTIFICATION_TOPICS,
+      exchange: EXCHANGES.UI_FEED_TOPICS,
       exchangeType: EXCHANGE_TYPES.TOPIC,
       source: UI_TOPIC_SOURCES.UI,
-      formatter: [UI_TOPIC_PARAMS.USER],
+      formatter: [UI_TOPIC_PARAMS.RECEIVER],
     },
+  },
+  [EXCHANGES.UI_CONVERTED_TOPICS]: {
     [UI_TOPIC_SOURCES.INSTANCE]: {
-      exchange: EXCHANGES.UI_NOTIFICATION_TOPICS,
+      exchange: EXCHANGES.UI_CONVERTED_TOPICS,
       exchangeType: EXCHANGE_TYPES.TOPIC,
       source: UI_TOPIC_SOURCES.INSTANCE,
       formatter: [
@@ -49,8 +53,8 @@ export const UI_EXCHANGE_TOPIC_MAP = {
         UI_TOPIC_PARAMS.CATEGORY,
       ],
       options: [
-        { eventName: UI_CONVERTED_EVENTS.INSTANCE_CREATE_FAILED, category: UI_CATEGORIES.FAILURE },
-        { eventName: UI_CONVERTED_EVENTS.INSTANCE_CREATE_SUCCESS, category: UI_CATEGORIES.SUCCESS },
+        { [UI_TOPIC_PARAMS.EVENT_NAME]: UI_CONVERTED_EVENTS.INSTANCE_CREATE_FAILED, [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.FAILED },
+        { [UI_TOPIC_PARAMS.EVENT_NAME]: UI_CONVERTED_EVENTS.INSTANCE_CREATE_SUCCESS, [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.SUCCESS },
       ],
       filters: {
         [UI_TOPIC_PARAMS.IS_ACTIVE]: [true, false],
@@ -61,9 +65,9 @@ export const UI_EXCHANGE_TOPIC_MAP = {
 
 // ──── Exchange Headers Map ────
 export const UI_EXCHANGE_HEADERS_MAP = {
-  [EXCHANGES.UI_NOTIFICATION_HEADERS]: {
+  [EXCHANGES.UI_CONVERTED_HEADERS]: {
     [UI_TOPIC_SOURCES.INSTANCE]: {
-      exchange: EXCHANGES.UI_NOTIFICATION_HEADERS,
+      exchange: EXCHANGES.UI_CONVERTED_HEADERS,
       exchangeType: EXCHANGE_TYPES.HEADERS,
       source: UI_TOPIC_SOURCES.INSTANCE,
       formatter: [
@@ -75,8 +79,8 @@ export const UI_EXCHANGE_HEADERS_MAP = {
         UI_TOPIC_PARAMS.CATEGORY,
       ],
       options: [
-        { eventName: UI_CONVERTED_EVENTS.INSTANCE_CREATE_FAILED, category: UI_CATEGORIES.FAILURE },
-        { eventName: UI_CONVERTED_EVENTS.INSTANCE_CREATE_SUCCESS, category: UI_CATEGORIES.SUCCESS },
+        { [UI_TOPIC_PARAMS.EVENT_NAME]: UI_CONVERTED_EVENTS.INSTANCE_CREATE_FAILED, [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.FAILED },
+        { [UI_TOPIC_PARAMS.EVENT_NAME]: UI_CONVERTED_EVENTS.INSTANCE_CREATE_SUCCESS, [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.SUCCESS },
       ],
       filters: {
         [UI_TOPIC_PARAMS.IS_ACTIVE]: [true, false],

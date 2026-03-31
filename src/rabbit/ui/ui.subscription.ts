@@ -31,7 +31,7 @@ import { UI_EXCHANGE_TOPIC_MAP } from './ui.config.ts'
 type OptionCombo = Partial<Record<string, string | boolean>>
 type FilterMap = Record<string, readonly (string | boolean)[]>
 
-const topicConfigs = UI_EXCHANGE_TOPIC_MAP[EXCHANGES.UI_NOTIFICATION_TOPICS]
+const { [EXCHANGES.UI_CONVERTED_TOPICS]: topicConfigs } = UI_EXCHANGE_TOPIC_MAP
 
 const getUniqueValues = (combos: readonly OptionCombo[], param: string) =>
   [...new Set(combos.map((combo) => combo[param]).filter((value) => value !== undefined))]

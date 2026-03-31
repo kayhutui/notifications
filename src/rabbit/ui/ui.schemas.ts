@@ -41,7 +41,7 @@ export const userUpdatedEventSchema = getUIEventSchema(UI_EVENTS.USER_UPDATED, U
 // ──── Converted Event Schemas ────
 export const instanceCreateFailedEventSchema = getUIEventSchema(
   UI_CONVERTED_EVENTS.INSTANCE_CREATE_FAILED,
-  UI_CATEGORIES.FAILURE,
+  UI_CATEGORIES.FAILED,
   UI_ACTIONS.CREATE,
 ).extend({
   data: instanceFailureEventSchema,

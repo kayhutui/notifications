@@ -27,20 +27,20 @@ import type { _Utilities } from '../utilities.types.ts'
 export const UI_CATEGORIES = {
   INFO: 'info',
   SUCCESS: 'success',
-  FAILURE: 'failure',
-} as const satisfies Record<string, string>
+  FAILED: 'failure',
+} as const
 
 // ──── Topic Targets ────
 export const UI_TOPIC_TARGETS = {
   USER: 'user',
   INSTANCE: 'instance',
-} as const satisfies Record<string, string>
+} as const
 
 // ──── Actions ────
 export const UI_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-} as const satisfies Record<string, string>
+} as const
 
 // ──── Helpers (exported for types files only) ────
 export type _UiTopicTarget = _Utilities.ValuesOfObject<typeof UI_TOPIC_TARGETS>
@@ -72,7 +72,8 @@ export const UI_TOPIC_PARAMS = {
   OPERATION_ID: 'operation',
   TARGET_ID: 'target',
   ENTITY_ID: 'entity',
-  USER: 'user',
+  RECEIVER: 'receiver',
+  INSTANCE: 'instance',
   IS_ACTIVE: 'active',
   CATEGORY: 'category',
-} as const satisfies Record<string, string>
+} as const
