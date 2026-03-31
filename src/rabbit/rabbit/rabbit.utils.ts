@@ -18,13 +18,13 @@ import type { _Rabbit } from './rabbit.types.ts'
 export const formatTopic = <Param extends string>(
   { formatter, source }: _Rabbit.TopicRouteConfig<Param>,
   values: Partial<Record<Param, string | boolean>> = {},
+  defaultVal: string = ANY,
 ): string => {
-  const segments = formatter.map((key) => {
-    const { [key]: value } = values
-    // todo: check isEmpty
-    return String(value) || ANY
+  const topicValues = formatter.map((key) => {
+    const { [key]: value = defaultVal } = values
+    return String(value)
   })
-  return [source, ...segments].join('.')
+  return [source, ...topicValues].join('.')
 }
 
 /** Builds a headers object: { source, ...definedParams } (undefined values omitted) */
@@ -32,15 +32,14 @@ export const formatHeaders = <Param extends string>(
   { formatter, source }: _Rabbit.HeadersRouteConfig<Param>,
   values: Partial<Record<Param, string | boolean>> = {},
 ) => {
-  const defined = formatter
-    .filter((key) => {
+  return formatter.reduce<Record<string, string | boolean>>(
+    (acc, key) => {
       const { [key]: value } = values
-      return value !== undefined
-    })
-    .map((key) => {
-      const { [key]: value } = values
-      return { [key]: value }
-    })
-
-  return Object.assign({ source }, ...defined)
+      if (value !== undefined) {
+        acc[key] = value
+      }
+      return acc
+    },
+    { source },
+  )
 }
