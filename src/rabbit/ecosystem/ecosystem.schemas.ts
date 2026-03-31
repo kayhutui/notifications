@@ -43,6 +43,7 @@ export const ecosystemEventDataSchema = z.object({
   [BASE_DATA_FIELDS.OPERATION_ID]: z.string(),
   [BASE_DATA_FIELDS.TARGET_ID]: z.string(),
   [BASE_DATA_FIELDS.ENTITY_ID]: z.string(),
+  [BASE_DATA_FIELDS.INSTANCE_ID]: z.string(),
 })
 
 // ──── Base Event Schema Factory ────

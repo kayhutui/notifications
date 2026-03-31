@@ -43,7 +43,9 @@ export declare namespace _Convertor {
     getMeta: (params: Partial<Record<DestParam, Primitive>>) => Record<string, unknown>
     desiredFields?: DataField[]
     /** Enriches event data with additional computed fields */
-    enrich?: (data: Record<DataField, string>) => Promise<Record<EnrichedField, unknown>>
+    enrich?: [EnrichedField] extends [never]
+      ? undefined
+      : (data: Record<DataField, string>) => Promise<Record<EnrichedField, unknown>>
   }
 
   /** Mapped type: exchange key and source key must match the inner source config */
