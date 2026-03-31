@@ -17,12 +17,13 @@
  * The `satisfies` constraint enforces that map keys match inner config exchange/source values.
  */
 import type { _Rabbit } from '../rabbit/rabbit.types.ts'
+import type { Primitive } from '../utilities.types.ts'
 
 export declare namespace _Convertor {
   export interface EventConfig<
     SourceParam extends string = string,
     DestParam extends string = string,
-    ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
+    ParamValueMap extends Record<string, unknown> = Record<string, Primitive>,
     DataField extends string = string,
     EnrichedField extends string = never,
   > {
@@ -39,7 +40,7 @@ export declare namespace _Convertor {
     /** Maps destination params to keys in the raw ecosystem event data object */
     dynamicValues: Partial<Record<DestParam, DataField | EnrichedField>>
     /** Builds message metadata (e.g. notification title) from the resolved destination values */
-    getMeta: (params: Partial<Record<DestParam, string | boolean>>) => Record<string, unknown>
+    getMeta: (params: Partial<Record<DestParam, Primitive>>) => Record<string, unknown>
     desiredFields?: DataField[]
     /** Enriches event data with additional computed fields */
     enrich?: (data: Record<DataField, string>) => Promise<Record<EnrichedField, unknown>>
@@ -50,7 +51,7 @@ export declare namespace _Convertor {
     Source extends string,
     SourceParam extends string = string,
     DestParam extends string = string,
-    ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
+    ParamValueMap extends Record<string, unknown> = Record<string, Primitive>,
   > = {
     [Exchange in _Rabbit.RabbitExchangeName]?: {
       [Src in Source]?: EventConfig<SourceParam, DestParam, ParamValueMap>[]

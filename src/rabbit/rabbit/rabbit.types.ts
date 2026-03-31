@@ -19,6 +19,7 @@
  * to enforce that the exchange and source keys in the map match the inner config values.
  */
 import type { _RabbitExchangeName, _RabbitExchangeType } from './rabbit.consts.ts'
+import type { Primitive } from '../utilities.types.ts'
 
 export declare namespace _Rabbit {
   export type RabbitExchangeName = _RabbitExchangeName
@@ -31,9 +32,9 @@ export declare namespace _Rabbit {
     /** Ordered param names forming the routing key segments (after source) */
     formatter: readonly Param[]
     /** Valid dependent param combinations — defines the hierarchical tree structure */
-    options?: readonly Partial<Record<Param, string | boolean>>[]
+    options?: readonly Partial<Record<Param, Primitive>>[]
     /** Independent filter params — can be added to any subscription binding */
-    filters?: Partial<Record<Param, readonly (string | boolean)[]>>
+    filters?: Partial<Record<Param, readonly (Primitive)[]>>
     source: string
   }
 

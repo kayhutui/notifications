@@ -5,7 +5,7 @@
  *
  * State shape: { [source]: ParamSelection[] }
  *   Each source (e.g. 'INSTANCE') has an array of "bindings" — each binding is
- *   a Record<string, string | boolean> representing one subscription rule.
+ *   a Record<string, Primitive> representing one subscription rule.
  *
  * Binding examples:
  *   [{}]                              → subscribed to ALL (no tree params set)
@@ -32,8 +32,9 @@
 import { useState, useCallback } from 'react'
 import { UI_SUBSCRIPTION_ITEMS } from './ui.subscription.ts'
 import { UI_TOPIC_PARAMS } from './ui.consts.ts'
+import type { Primitive } from '../utilities.types.ts'
 
-type ParamSelection = Record<string, string | boolean>
+type ParamSelection = Record<string, Primitive>
 type SubscriptionState = Record<string, ParamSelection[]>
 
 // ──── Binding Utilities ────
@@ -58,12 +59,12 @@ const hasNoTreeParams = (binding: ParamSelection, treeParams: Set<string>): bool
     return value === undefined
   })
 
-const matchesCategoryOnly = (binding: ParamSelection, category: string | boolean): boolean => {
+const matchesCategoryOnly = (binding: ParamSelection, category: Primitive): boolean => {
   const { [UI_TOPIC_PARAMS.CATEGORY]: boundCategory, [UI_TOPIC_PARAMS.EVENT_NAME]: eventName } = binding
   return boundCategory === category && eventName === undefined
 }
 
-const matchesEvent = (binding: ParamSelection, eventName: string | boolean): boolean => {
+const matchesEvent = (binding: ParamSelection, eventName: Primitive): boolean => {
   const { [UI_TOPIC_PARAMS.EVENT_NAME]: boundEventName } = binding
   return boundEventName === eventName
 }
@@ -103,7 +104,7 @@ export const useSubscription = () => {
     })
   }, [])
 
-  const toggleCategory = useCallback((source: string, category: string | boolean) => {
+  const toggleCategory = useCallback((source: string, category: Primitive) => {
     setSubscriptions((prev) => {
       const { [source]: bindings = [] } = prev
       const treeParams = getTreeParamNames(source)
@@ -124,7 +125,7 @@ export const useSubscription = () => {
     })
   }, [])
 
-  const toggleEvent = useCallback((source: string, eventName: string | boolean, category: string | boolean) => {
+  const toggleEvent = useCallback((source: string, eventName: Primitive, category: Primitive) => {
     setSubscriptions((prev) => {
       const { [source]: bindings = [] } = prev
       const treeParams = getTreeParamNames(source)
@@ -146,7 +147,7 @@ export const useSubscription = () => {
     })
   }, [])
 
-  const toggleFilter = useCallback((source: string, param: string, value: string | boolean) => {
+  const toggleFilter = useCallback((source: string, param: string, value: Primitive) => {
     setSubscriptions((prev) => {
       const { [source]: bindings = [] } = prev
 
@@ -171,17 +172,17 @@ export const useSubscription = () => {
     return bindings.length >= 1 && hasNoTreeParams(bindings[0], treeParams)
   }
 
-  const isCategoryChecked = (source: string, category: string | boolean): boolean => {
+  const isCategoryChecked = (source: string, category: Primitive): boolean => {
     const { [source]: bindings = [] } = subscriptions
     return bindings.some((binding) => matchesCategoryOnly(binding, category))
   }
 
-  const isEventChecked = (source: string, eventName: string | boolean): boolean => {
+  const isEventChecked = (source: string, eventName: Primitive): boolean => {
     const { [source]: bindings = [] } = subscriptions
     return bindings.some((binding) => matchesEvent(binding, eventName))
   }
 
-  const isFilterActive = (source: string, param: string, value: string | boolean): boolean => {
+  const isFilterActive = (source: string, param: string, value: Primitive): boolean => {
     const { [source]: bindings = [] } = subscriptions
     return bindings.length > 0 && bindings.every((binding) => {
       const { [param]: current } = binding

@@ -13,11 +13,12 @@
  */
 import { ANY } from './rabbit.consts.ts'
 import type { _Rabbit } from './rabbit.types.ts'
+import type { Primitive } from '../utilities.types.ts'
 
 /** Builds a topic routing key: source.param1.param2... (missing values → '*') */
 export const formatTopic = <Param extends string>(
   { formatter, source }: _Rabbit.TopicRouteConfig<Param>,
-  values: Partial<Record<Param, string | boolean>> = {},
+  values: Partial<Record<Param, Primitive>> = {},
   defaultVal: string = ANY,
 ): string => {
   const topicValues = formatter.map((key) => {
@@ -30,9 +31,9 @@ export const formatTopic = <Param extends string>(
 /** Builds a headers object: { source, ...definedParams } (undefined values omitted) */
 export const formatHeaders = <Param extends string>(
   { formatter, source }: _Rabbit.HeadersRouteConfig<Param>,
-  values: Partial<Record<Param, string | boolean>> = {},
+  values: Partial<Record<Param, Primitive>> = {},
 ) => {
-  return formatter.reduce<Record<string, string | boolean>>(
+  return formatter.reduce<Record<string, Primitive>>(
     (acc, key) => {
       const { [key]: value } = values
       if (value !== undefined) {

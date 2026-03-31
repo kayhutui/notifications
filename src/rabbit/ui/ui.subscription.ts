@@ -27,9 +27,10 @@
  */
 import { EXCHANGES } from '../rabbit/rabbit.consts.ts'
 import { UI_EXCHANGE_TOPIC_MAP } from './ui.config.ts'
+import type { Primitive } from '../utilities.types.ts'
 
-type OptionCombo = Partial<Record<string, string | boolean>>
-type FilterMap = Record<string, readonly (string | boolean)[]>
+type OptionCombo = Partial<Record<string, Primitive>>
+type FilterMap = Record<string, readonly Primitive[]>
 
 const { [EXCHANGES.UI_CONVERTED_TOPICS]: topicConfigs } = UI_EXCHANGE_TOPIC_MAP
 
