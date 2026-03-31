@@ -33,7 +33,7 @@ export declare namespace _Convertor {
     /** Maps destination params to keys in the raw ecosystem event data object */
     dynamicValues: Partial<Record<DestParam, string>>
     /** Builds message metadata (e.g. notification title) from the resolved destination values */
-    getMeta: (params: Partial<Record<DestParam, string | boolean>>) => Record<string, string>
+    getMeta: (params: Partial<Record<DestParam, string | boolean>>) => Record<string, unknown>
   }
 
   /** Mapped type: exchange key and source key must match the inner source config */

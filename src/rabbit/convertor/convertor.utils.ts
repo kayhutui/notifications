@@ -31,7 +31,7 @@ type DestinationValues = Record<string, string | boolean>
 type Publication = {
   exchange: string
   routingKey: string
-  headers: Record<string, string | boolean>
+  headers: Record<string, unknown>
 }
 
 // ──── Config Lookup ────
@@ -76,7 +76,7 @@ const resolveDestinationValues = (
 const formatPublication = (
   destination: _Rabbit.TopicRouteConfig | _Rabbit.HeadersRouteConfig,
   values: DestinationValues,
-  meta: Record<string, string>,
+  meta: Record<string, unknown>,
 ): Publication => {
   const { exchange, exchangeType } = destination
 
