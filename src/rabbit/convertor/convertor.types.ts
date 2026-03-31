@@ -19,7 +19,11 @@
 import type { _Rabbit } from '../rabbit/rabbit.types.ts'
 
 export declare namespace _Convertor {
-  export interface EventConfig<SourceParam extends string = string, DestParam extends string = string> {
+  export interface EventConfig<
+    SourceParam extends string = string,
+    DestParam extends string = string,
+    ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
+  > {
     /** Ecosystem event name to match against incoming events */
     eventName: string
     /** Ecosystem route config — defines the exchange/source to subscribe to */
@@ -29,7 +33,7 @@ export declare namespace _Convertor {
     /** UI route configs to publish converted messages to (topic and/or headers exchanges) */
     destinations: (_Rabbit.TopicRouteConfig<DestParam> | _Rabbit.HeadersRouteConfig<DestParam>)[]
     /** Fixed destination param values applied to every conversion (e.g. category, active) */
-    staticValues: Partial<Record<DestParam, string | boolean>>
+    staticValues: Partial<Pick<ParamValueMap, DestParam & keyof ParamValueMap>>
     /** Maps destination params to keys in the raw ecosystem event data object */
     dynamicValues: Partial<Record<DestParam, string>>
     /** Builds message metadata (e.g. notification title) from the resolved destination values */
@@ -41,9 +45,10 @@ export declare namespace _Convertor {
     Source extends string,
     SourceParam extends string = string,
     DestParam extends string = string,
+    ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
   > = {
     [Exchange in _Rabbit.RabbitExchangeName]?: {
-      [Src in Source]?: (EventConfig<SourceParam, DestParam> & {
+      [Src in Source]?: (EventConfig<SourceParam, DestParam, ParamValueMap> & {
         source: { exchange: Exchange; source: Src }
       })[]
     }

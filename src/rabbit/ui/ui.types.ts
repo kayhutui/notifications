@@ -20,7 +20,8 @@ import {
   UI_TOPIC_PARAMS,
 } from './ui.consts.ts'
 import { UI_EVENTS, UI_CONVERTED_EVENTS } from './ui.consts.ts'
-import { UI_EXCHANGE_HEADERS_MAP } from './ui.config.ts'
+import { UI_EXCHANGE_TOPIC_MAP, UI_EXCHANGE_HEADERS_MAP } from './ui.config.ts'
+import { EXCHANGES } from '../rabbit/rabbit.consts.ts'
 import type { _Utilities } from '../utilities.types.ts'
 
 export declare namespace _UI {
@@ -40,6 +41,27 @@ export declare namespace _UI {
 
   /** Full exchange headers map type (preserves as const literals) */
   export type UiExchangeHeadersMap = typeof UI_EXCHANGE_HEADERS_MAP
+
+  /** The INSTANCE route config — source of truth for options/filters */
+  type _InstanceConfig = (typeof UI_EXCHANGE_TOPIC_MAP)[typeof EXCHANGES.UI_CONVERTED_TOPICS][typeof UI_TOPIC_SOURCES.INSTANCE]
+
+  /** Extract value types from options: for each param, union of all values across option combos */
+  type _OptionValues = _InstanceConfig['options'][number]
+
+  /** Extract value types from filters: for each param, the array element type */
+  type _FilterValues = { [K in keyof _InstanceConfig['filters']]: _InstanceConfig['filters'][K][number] }
+
+  /** Constrained params — those appearing in options or filters */
+  type _ConstrainedParams = keyof _OptionValues | keyof _FilterValues
+
+  /** Maps each UI param to its allowed value type, derived from config options/filters */
+  export type UiParamValueMap = {
+    [K in UiTopicParam]: K extends keyof _OptionValues
+      ? _OptionValues[K]
+      : K extends keyof _FilterValues
+        ? _FilterValues[K]
+        : string
+  }
 
   /** Enriched message — the full shape the converter produces for UI exchanges */
   export type UiEnrichedMessage = { [Param in UiTopicParam]: string }

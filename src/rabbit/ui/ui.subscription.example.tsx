@@ -22,6 +22,7 @@
 
 import { UI_SUBSCRIPTION_ITEMS } from './ui.subscription.ts'
 import { useSubscription } from './ui.useSubscription.ts'
+import { UI_TOPIC_PARAMS } from './ui.consts.ts'
 
 const SubscriptionTree = () => {
   const {
@@ -40,7 +41,7 @@ const SubscriptionTree = () => {
     <div>
       {Object.entries(UI_SUBSCRIPTION_ITEMS).map(([source, { filters, getFilteredOptions }]) => {
         const { [source]: bindings = [] } = subscriptions
-        const categories = getFilteredOptions({}).category || []
+        const { [UI_TOPIC_PARAMS.CATEGORY]: categories = [] } = getFilteredOptions({})
         const allChecked = isAllChecked(source)
 
         if (categories.length === 0) {
@@ -60,7 +61,7 @@ const SubscriptionTree = () => {
 
             {categories.map((category) => {
               const categoryChecked = isCategoryChecked(source, category)
-              const events = getFilteredOptions({ category }).eventName || []
+              const { [UI_TOPIC_PARAMS.EVENT_NAME]: events = [] } = getFilteredOptions({ [UI_TOPIC_PARAMS.CATEGORY]: category })
 
               return (
                 <div key={String(category)} style={{ paddingLeft: 16 }}>

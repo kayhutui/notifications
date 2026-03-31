@@ -31,6 +31,7 @@
  */
 import { useState, useCallback } from 'react'
 import { UI_SUBSCRIPTION_ITEMS } from './ui.subscription.ts'
+import { UI_TOPIC_PARAMS } from './ui.consts.ts'
 
 type ParamSelection = Record<string, string | boolean>
 type SubscriptionState = Record<string, ParamSelection[]>
@@ -58,12 +59,12 @@ const hasNoTreeParams = (binding: ParamSelection, treeParams: Set<string>): bool
   })
 
 const matchesCategoryOnly = (binding: ParamSelection, category: string | boolean): boolean => {
-  const { category: boundCategory, eventName } = binding
+  const { [UI_TOPIC_PARAMS.CATEGORY]: boundCategory, [UI_TOPIC_PARAMS.EVENT_NAME]: eventName } = binding
   return boundCategory === category && eventName === undefined
 }
 
 const matchesEvent = (binding: ParamSelection, eventName: string | boolean): boolean => {
-  const { eventName: boundEventName } = binding
+  const { [UI_TOPIC_PARAMS.EVENT_NAME]: boundEventName } = binding
   return boundEventName === eventName
 }
 
@@ -73,7 +74,8 @@ const replaceBindings = (
   bindings: ParamSelection[],
 ): SubscriptionState => {
   if (bindings.length === 0) {
-    const { [source]: _removed, ...rest } = prev
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { [source]: _, ...rest } = prev
     return rest
   }
 
@@ -108,7 +110,7 @@ export const useSubscription = () => {
       const allChecked = bindings.length >= 1 && hasNoTreeParams(bindings[0], treeParams)
 
       if (allChecked) {
-        return replaceBindings(prev, source, [{ category }])
+        return replaceBindings(prev, source, [{ [UI_TOPIC_PARAMS.CATEGORY]: category }])
       }
 
       const hasCategoryBinding = bindings.some((binding) => matchesCategoryOnly(binding, category))
@@ -118,7 +120,7 @@ export const useSubscription = () => {
         return replaceBindings(prev, source, remaining)
       }
 
-      return replaceBindings(prev, source, [...bindings, { category }])
+      return replaceBindings(prev, source, [...bindings, { [UI_TOPIC_PARAMS.CATEGORY]: category }])
     })
   }, [])
 
@@ -129,7 +131,7 @@ export const useSubscription = () => {
       const allChecked = bindings.length >= 1 && hasNoTreeParams(bindings[0], treeParams)
 
       if (allChecked) {
-        return replaceBindings(prev, source, [{ eventName }])
+        return replaceBindings(prev, source, [{ [UI_TOPIC_PARAMS.EVENT_NAME]: eventName }])
       }
 
       const hasEventBinding = bindings.some((binding) => matchesEvent(binding, eventName))
@@ -140,7 +142,7 @@ export const useSubscription = () => {
       }
 
       const withoutCategory = bindings.filter((binding) => !matchesCategoryOnly(binding, category))
-      return replaceBindings(prev, source, [...withoutCategory, { eventName }])
+      return replaceBindings(prev, source, [...withoutCategory, { [UI_TOPIC_PARAMS.EVENT_NAME]: eventName }])
     })
   }, [])
 
