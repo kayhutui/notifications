@@ -13,19 +13,22 @@
 
 // ──── Events ────
 export const ECOSYSTEM_EVENTS = {
-  INSTANCE_FAILED: 'instanceFailure',
-  INSTANCE_SUCCESS: 'instanceSuccess',
-} as const satisfies Record<string, string>
+  INSTANCE_FAILED: 'instanceFailureEvent',
+  INSTANCE_SUCCESS: 'instanceSuccessEvent',
+  INSTANCE_STATE: 'instanceStateEvent',
+  INSTANCE_DONE: 'instanceDoneEvent',
+} as const
 
 // ──── Topic Sources (first segment of topic) ────
 export const ECOSYSTEM_TOPIC_SOURCES = {
   ECOSYSTEM: 'ECOSYSTEM',
-} as const satisfies Record<string, Uppercase<string>>
+} as const
 
 // ──── Topic Params ────
 export const ECOSYSTEM_TOPIC_PARAMS = {
-  EVENT_NAME: 'eventName',
-  OPERATION_ID: 'operation',
-  TARGET_ID: 'target',
-  ENTITY_ID: 'entity',
-} as const satisfies Record<string, string>
+  TRIGGERED_EVENT_NAME: 'triggeredEventName',
+  EVENT_TYPE: 'eventType',
+  OPERATION: 'operation',
+  TARGET: 'target',
+  ENTITY: 'entity',
+} as const
