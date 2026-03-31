@@ -22,12 +22,13 @@ const BASE_DATA_FIELDS = {
   OPERATION_ID: 'operation_id',
   TARGET_ID: 'target_id',
   ENTITY_ID: 'entity_id',
+  INSTANCE_ID: 'instance_id'
 } as const
 
 /** Per-event data field maps — each event declares only its own valid fields */
 export const ECOSYSTEM_DATA_FIELDS = {
-  [ECOSYSTEM_EVENTS.INSTANCE_FAILED]: { ...BASE_DATA_FIELDS },
-  [ECOSYSTEM_EVENTS.INSTANCE_SUCCESS]: { ...BASE_DATA_FIELDS },
+  [ECOSYSTEM_EVENTS.INSTANCE_FAILED]: BASE_DATA_FIELDS,
+  [ECOSYSTEM_EVENTS.INSTANCE_SUCCESS]: BASE_DATA_FIELDS,
   [ECOSYSTEM_EVENTS.INSTANCE_STATE]: {
     ...BASE_DATA_FIELDS,
     EVENT_NAME: 'event_name',
