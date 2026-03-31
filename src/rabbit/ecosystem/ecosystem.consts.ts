@@ -31,4 +31,5 @@ export const ECOSYSTEM_TOPIC_PARAMS = {
   OPERATION: 'operation',
   TARGET: 'target',
   ENTITY: 'entity',
+  INSTANCE: 'instance',
 } as const
