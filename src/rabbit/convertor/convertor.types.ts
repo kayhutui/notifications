@@ -23,6 +23,8 @@ export declare namespace _Convertor {
     SourceParam extends string = string,
     DestParam extends string = string,
     ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
+    DataField extends string = string,
+    EnrichedField extends string = never,
   > {
     /** Ecosystem event name to match against incoming events */
     eventName: string
@@ -35,9 +37,12 @@ export declare namespace _Convertor {
     /** Fixed destination param values applied to every conversion (e.g. category, active) */
     staticValues: Partial<Pick<ParamValueMap, DestParam & keyof ParamValueMap>>
     /** Maps destination params to keys in the raw ecosystem event data object */
-    dynamicValues: Partial<Record<DestParam, string>>
+    dynamicValues: Partial<Record<DestParam, DataField | EnrichedField>>
     /** Builds message metadata (e.g. notification title) from the resolved destination values */
     getMeta: (params: Partial<Record<DestParam, string | boolean>>) => Record<string, unknown>
+    desiredFields?: DataField[]
+    /** Enriches event data with additional computed fields */
+    enrich?: (data: Record<DataField, string>) => Promise<Record<EnrichedField, unknown>>
   }
 
   /** Mapped type: exchange key and source key must match the inner source config */
@@ -48,9 +53,7 @@ export declare namespace _Convertor {
     ParamValueMap extends Record<string, unknown> = Record<string, string | boolean>,
   > = {
     [Exchange in _Rabbit.RabbitExchangeName]?: {
-      [Src in Source]?: (EventConfig<SourceParam, DestParam, ParamValueMap> & {
-        source: { exchange: Exchange; source: Src }
-      })[]
+      [Src in Source]?: EventConfig<SourceParam, DestParam, ParamValueMap>[]
     }
   }
 }
