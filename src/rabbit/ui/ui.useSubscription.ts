@@ -39,19 +39,19 @@ type SubscriptionState = Record<string, ParamSelection[]>
 
 // ──── Binding Utilities ────
 
-const getTreeParamNames = (source: string): Set<string> => {
-  const { [source]: config } = UI_SUBSCRIPTION_ITEMS
+const TREE_PARAM_NAMES_BY_SOURCE = Object.fromEntries(
+  Object.entries(UI_SUBSCRIPTION_ITEMS).map(([source, config]) => [
+    source,
+    new Set(
+      config.params
+        .filter(({ constrained }) => constrained)
+        .map(({ param }) => param),
+    ),
+  ]),
+)
 
-  if (!config) {
-    return new Set()
-  }
-
-  return new Set(
-    config.params
-      .filter(({ constrained }) => constrained)
-      .map(({ param }) => param),
-  )
-}
+const getTreeParamNames = (source: string): Set<string> =>
+  TREE_PARAM_NAMES_BY_SOURCE[source] ?? new Set()
 
 const hasNoTreeParams = (binding: ParamSelection, treeParams: Set<string>): boolean =>
   [...treeParams].every((param) => {
@@ -75,8 +75,7 @@ const replaceBindings = (
   bindings: ParamSelection[],
 ): SubscriptionState => {
   if (bindings.length === 0) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [source]: _, ...rest } = prev
+    const { [source]: _removed, ...rest } = prev
     return rest
   }
 

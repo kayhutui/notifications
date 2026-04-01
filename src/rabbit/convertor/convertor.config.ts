@@ -46,7 +46,7 @@ export const CONVERTOR_MAP = {
         subscribeWith: { [ECOSYSTEM_TOPIC_PARAMS.TRIGGERED_EVENT_NAME]: ECOSYSTEM_EVENTS.INSTANCE_DONE },
         destinations: [uiTopicConfig, uiHeadersConfig],
         staticValues: { [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.FAILED, [UI_TOPIC_PARAMS.IS_ACTIVE]: true },
-        dynamicValues: { [UI_TOPIC_PARAMS.OPERATION_ID]: 'interest_id', [UI_TOPIC_PARAMS.TARGET_ID]: 'target_id', [UI_TOPIC_PARAMS.ENTITY_ID]: 'entity_id', [UI_TOPIC_PARAMS.INSTANCE]: 'instance_id' },
+        dynamicValues: { [UI_TOPIC_PARAMS.OPERATION]: 'interest_id', [UI_TOPIC_PARAMS.TARGET]: 'target_id', [UI_TOPIC_PARAMS.ENTITY]: 'entity_id', [UI_TOPIC_PARAMS.INSTANCE]: 'instance_id' },
         getMeta: ({ [UI_TOPIC_PARAMS.INSTANCE]: instance }) => ({
           title: `Instance ${instance} failed`,
           targetData: { targetId: instance },
@@ -61,8 +61,8 @@ export const CONVERTOR_MAP = {
         subscribeWith: {},
         destinations: [uiTopicConfig, uiHeadersConfig],
         staticValues: { [UI_TOPIC_PARAMS.CATEGORY]: UI_CATEGORIES.SUCCESS, [UI_TOPIC_PARAMS.IS_ACTIVE]: true },
-        dynamicValues: { [UI_TOPIC_PARAMS.OPERATION_ID]: 'operation_id', [UI_TOPIC_PARAMS.TARGET_ID]: 'target_id', [UI_TOPIC_PARAMS.ENTITY_ID]: 'entity_id' },
-        getMeta: ({ [UI_TOPIC_PARAMS.ENTITY_ID]: entity }) => ({
+        dynamicValues: { [UI_TOPIC_PARAMS.OPERATION]: 'operation_id', [UI_TOPIC_PARAMS.TARGET]: 'target_id', [UI_TOPIC_PARAMS.ENTITY]: 'entity_id' },
+        getMeta: ({ [UI_TOPIC_PARAMS.ENTITY]: entity }) => ({
           title: `Instance ${entity} created successfully`,
           targetData: { targetId: entity },
         }),

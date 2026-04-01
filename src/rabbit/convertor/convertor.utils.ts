@@ -69,13 +69,14 @@ const renameEventDataFields = <
   )
 
 // ──── Main Conversion ────
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function publish(_: {
+interface Publication {
   exchange: string
   routingKey: string
   headers: Record<string, unknown>
   content: Record<string, unknown>
-}) {
+}
+
+function publish(_publication: Publication) {
   // todo
 }
 
@@ -84,26 +85,26 @@ export const convertEcosystemEvent = async (rawEvent: unknown) => {
   const config = findEventConfig(eventName)
   const { getMeta, enrich, dynamicValues, staticValues, destinations } = config
   const enrichedData = await applyEnrichData(data, enrich)
-  const fullData = { ...enrichedData, ...data }
+  const fullData = { ...data, ...enrichedData }
   const renamedFields = renameEventDataFields(dynamicValues, fullData)
   const destValues = ({ ...staticValues, ...renamedFields })
   const meta = getMeta(destValues)
   return destinations.map((destination) => {
     const { exchange, exchangeType } = destination
     if (exchangeType === EXCHANGE_TYPES.TOPIC) {
-      publish({
+      return publish({
         exchange,
         routingKey: formatTopic(destination, destValues),
         headers: meta,
         content: destValues,
       })
-    } else {
-      publish({
-        exchange,
-        routingKey: '',
-        headers: { ...formatHeaders(destination, destValues), ...meta },
-        content: destValues,
-      })
     }
+
+    return publish({
+      exchange,
+      routingKey: '',
+      headers: { ...formatHeaders(destination, destValues), ...meta },
+      content: destValues,
+    })
   })
 }

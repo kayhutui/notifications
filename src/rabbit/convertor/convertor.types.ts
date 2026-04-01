@@ -54,9 +54,11 @@ export declare namespace _Convertor {
     SourceParam extends string = string,
     DestParam extends string = string,
     ParamValueMap extends Record<string, unknown> = Record<string, Primitive>,
+    DataField extends string = string,
+    EnrichedField extends string = string,
   > = {
     [Exchange in _Rabbit.RabbitExchangeName]?: {
-      [Src in Source]?: EventConfig<SourceParam, DestParam, ParamValueMap>[]
+      [Src in Source]?: EventConfig<SourceParam, DestParam, ParamValueMap, DataField, EnrichedField>[]
     }
   }
 }

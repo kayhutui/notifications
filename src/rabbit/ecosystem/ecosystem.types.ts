@@ -3,9 +3,9 @@
  *
  * Type aliases derived from ecosystem constants via ValuesOfObject:
  *   EcosystemTopicSource — 'ECOSYSTEM' (literal union of source values)
- *   EcosystemTopicParam  — 'eventName' | 'operation' | 'target' | 'entity'
- *   EcosystemEvent       — 'instanceFailure' | 'instanceSuccess'
- *   EcosystemParsedMessage — { eventName: string, operation: string, target: string, entity: string }
+ *   EcosystemTopicParam  — 'triggeredEventName' | 'eventType' | 'operation' | 'target' | 'entity' | 'instance'
+ *   EcosystemEvent       — 'instanceFailureEvent' | 'instanceSuccessEvent' | 'instanceStateEvent' | 'instanceDoneEvent'
+ *   EcosystemParsedMessage — { [EcosystemTopicParam]: string }
  */
 import { ECOSYSTEM_TOPIC_SOURCES, ECOSYSTEM_TOPIC_PARAMS } from './ecosystem.consts.ts'
 import { ECOSYSTEM_EVENTS } from './ecosystem.consts.ts'

@@ -69,9 +69,9 @@ export const UI_TOPIC_SOURCES = {
 // ──── Topic Params ────
 export const UI_TOPIC_PARAMS = {
   EVENT_NAME: 'eventName',
-  OPERATION_ID: 'operation',
-  TARGET_ID: 'target',
-  ENTITY_ID: 'entity',
+  OPERATION: 'operation',
+  TARGET: 'target',
+  ENTITY: 'entity',
   RECEIVER: 'receiver',
   INSTANCE: 'instance',
   IS_ACTIVE: 'active',
