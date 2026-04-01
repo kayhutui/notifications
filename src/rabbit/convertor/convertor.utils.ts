@@ -7,11 +7,12 @@
  *   1. Parse:   validate raw event with ecosystemEventSchema (Zod discriminated union)
  *               → typed { eventName, data }
  *   2. Match:   find the EventConfig in CONVERTOR_MAP by eventName
- *   3. Resolve: build destination values by merging:
+ *   3. Enrich:  call enrich(data) to fetch additional fields (http, may fail → {})
+ *   4. Resolve: build destination values by merging:
  *               - staticValues:  fixed params from config (e.g. { category: 'failure', active: true })
- *               - dynamicValues: params extracted from parsed event data (e.g. operation ← data.operationId)
- *   4. Meta:    call getMeta(destValues) to build message metadata (e.g. notification title)
- *   5. Format:  for each destination config, produce a Publication:
+ *               - dynamicValues: params extracted from parsed event data + enriched data
+ *   5. Meta:    call getMeta(destValues) to build message metadata (e.g. notification title)
+ *   6. Format:  for each destination config, produce a Publication:
  *               - topic exchange:   routingKey = formatted topic string, headers = meta
  *               - headers exchange: routingKey = '', headers = routing headers + meta
  *
@@ -19,20 +20,10 @@
  */
 import { ecosystemEventSchema } from '../ecosystem/ecosystem.schemas.ts'
 import { CONVERTOR_MAP } from './convertor.config.ts'
-import { EXCHANGES } from '../rabbit/rabbit.consts.ts'
+import { EXCHANGE_TYPES, EXCHANGES } from '../rabbit/rabbit.consts.ts'
 import { ECOSYSTEM_TOPIC_SOURCES } from '../ecosystem/ecosystem.consts.ts'
 import { formatTopic, formatHeaders } from '../rabbit/rabbit.utils.ts'
-import type { _Rabbit } from '../rabbit/rabbit.types.ts'
 
-// ──── Types ────
-
-type DestinationValues = Record<string, string | boolean>
-
-type Publication = {
-  exchange: string
-  routingKey: string
-  headers: Record<string, unknown>
-}
 
 // ──── Config Lookup ────
 
@@ -50,59 +41,69 @@ const findEventConfig = (eventName: string) => {
   return config
 }
 
-// ──── Value Resolution ────
+// ──── Enrichment ────
 
-const resolveDestinationValues = (
-  staticValues: Partial<Record<string, string | boolean>>,
-  dynamicValues: Partial<Record<string, string>>,
-  data: Record<string, string>,
-): DestinationValues => {
-  const staticEntries = Object.entries(staticValues).filter(
-    (entry): entry is [string, string | boolean] => entry[1] !== undefined,
+const emptyResult = <Result extends Record<string, unknown>>(): Partial<Result> => ({})
+
+const applyEnrichData = async <
+  Data extends Record<string, string>,
+  EnrichResult extends Record<string, unknown> = Record<string, never>,
+>(
+  data: Data,
+  enrich?: (data: Data) => Promise<EnrichResult>,
+) => enrich ? enrich(data).catch(emptyResult<EnrichResult>) : emptyResult<EnrichResult>()
+
+// ──── Field Renaming ────
+
+const renameEventDataFields = <
+  DynamicValues extends Partial<Record<string, string>>,
+  Data extends Record<string, unknown>,
+>(
+  dynamicValues: DynamicValues,
+  data: Data,
+) =>
+  Object.fromEntries(
+    Object.entries(dynamicValues)
+      .filter((entry): entry is [string, string] => entry[1] !== undefined)
+      .map(([destParam, dataKey]) => [destParam, String(data[dataKey] ?? '')]),
   )
 
-  const dynamicEntries = Object.entries(dynamicValues)
-    .filter((entry): entry is [string, string] => entry[1] !== undefined)
-    .map(([destParam, dataKey]): [string, string] => {
-      const { [dataKey]: value } = data
-      return [destParam, value]
-    })
-
-  return Object.fromEntries([...staticEntries, ...dynamicEntries])
-}
-
-// ──── Publication Formatting ────
-
-const formatPublication = (
-  destination: _Rabbit.TopicRouteConfig | _Rabbit.HeadersRouteConfig,
-  values: DestinationValues,
-  meta: Record<string, unknown>,
-): Publication => {
-  const { exchange, exchangeType } = destination
-
-  if (exchangeType === 'topic') {
-    return {
-      exchange,
-      routingKey: formatTopic(destination, values),
-      headers: meta,
-    }
-  }
-
-  return {
-    exchange,
-    routingKey: '',
-    headers: { ...formatHeaders(destination, values), ...meta },
-  }
-}
-
 // ──── Main Conversion ────
-export const convertEcosystemEvent = (rawEvent: unknown): Publication[] => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function publish(_: {
+  exchange: string
+  routingKey: string
+  headers: Record<string, unknown>
+  content: Record<string, unknown>
+}) {
+  // todo
+}
+
+export const convertEcosystemEvent = async (rawEvent: unknown) => {
   const { eventName, data } = ecosystemEventSchema.parse(rawEvent)
   const config = findEventConfig(eventName)
-  const { staticValues, dynamicValues, destinations, getMeta, enrich } = config
-  const dataRecord = Object.fromEntries(Object.entries(data))
-  const destValues = resolveDestinationValues(staticValues, dynamicValues, dataRecord)
+  const { getMeta, enrich, dynamicValues, staticValues, destinations } = config
+  const enrichedData = await applyEnrichData(data, enrich)
+  const fullData = { ...enrichedData, ...data }
+  const renamedFields = renameEventDataFields(dynamicValues, fullData)
+  const destValues = ({ ...staticValues, ...renamedFields })
   const meta = getMeta(destValues)
-
-  return destinations.map((destination) => formatPublication(destination, destValues, meta))
+  return destinations.map((destination) => {
+    const { exchange, exchangeType } = destination
+    if (exchangeType === EXCHANGE_TYPES.TOPIC) {
+      publish({
+        exchange,
+        routingKey: formatTopic(destination, destValues),
+        headers: meta,
+        content: destValues,
+      })
+    } else {
+      publish({
+        exchange,
+        routingKey: '',
+        headers: { ...formatHeaders(destination, destValues), ...meta },
+        content: destValues,
+      })
+    }
+  })
 }
